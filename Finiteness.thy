@@ -15,6 +15,10 @@ text \<open>
 text \<open>This slot is intended to provide more \<open>intro\<close> theorems for finite sets.\<close>
 named_theorems finite
 
+(* Trick from Dan Matichuk on isabelle-users *)
+method add_finite_Collect_simproc methods m =
+  match termI in H[simproc add: finite_Collect]:_ \<Rightarrow> m
+
 method finite_tup =
   match conclusion in
     "finite (_ \<times> _)" \<Rightarrow> \<open>rule finite_cartesian_product; finite_tup\<close> \<bar>
@@ -29,13 +33,14 @@ method finite_tup =
 method finite_search =
   match conclusion in
     "finite (_ \<times> _)" \<Rightarrow> \<open>rule finite_cartesian_product; finite_search\<close> \<bar>
+    "finite (_ ` _)" \<Rightarrow> \<open>simp; finite_search | rule finite_imageI; finite_search\<close> \<bar>
     "finite S" for S :: "(_ * _) set" \<Rightarrow>
       \<open>print_term S, (solves \<open>rule finite_subset; auto\<close>
         | rule finite_subset[where A = S and B = "fst ` S \<times> snd ` S"]; finite_tup?)\<close> \<bar>
     "finite (Collect f)" for f \<Rightarrow>
       \<open>print_term f,
         (print_term v, rule finite; (assumption | finite_search)
-       | simp; rule finite_imageI; finite_search
+       | add_finite_Collect_simproc simp; rule finite_imageI; finite_search
        | print_term x, rule finite_subset; assumption?; fastforce)\<close> \<bar>
     "finite X" for X \<Rightarrow>
       \<open>print_term X,
@@ -74,7 +79,6 @@ lemma collect_pair_finite''[finite]:
 using assms by - finite_search
 
 lemma finite_imageI':
-  notes [[simproc finite_Collect]]
   assumes "finite {(x, y). P x y}"
   shows "finite {f x y | x y. P x y}"
 using assms by - finite_search
@@ -85,19 +89,17 @@ lemma
 using assms by - finite_search
 
 lemma finite_imageI'':
-  notes [[simproc finite_Collect]]
   assumes "finite (A \<times> B)"
   shows "finite {f x y | x y. x \<in> A \<and> y \<in> B \<and> R x y}"
 using assms by - finite_search
 
 lemma
-  notes [[simproc finite_Collect]]
   assumes "finite (A \<times> B)"
   shows "finite {f x y | x y. x \<in> A \<and> y \<in> B \<and> R x y \<and> Q x y \<and> T x \<and> TT y}" (is "finite ?S")
 proof -
   have "?S = (\<lambda> (x, y). f x y) ` {(x, y). x \<in> A \<and> y \<in> B \<and> R x y \<and> Q x y \<and> T x \<and> TT y}"
   by auto
-  also have "finite \<dots>" using assms by - (rule finite_imageI, finite_search)
+  also have "finite \<dots>" using assms by - finite_search
   ultimately show ?thesis by simp
 qed
 
@@ -111,7 +113,7 @@ lemma
   notes finite_imageI''[finite]
   assumes "finite (A \<times> B)"
   shows "finite {f x y | x y. x \<in> A \<and> y \<in> B \<and> R x y \<and> Q x y \<and> T x \<and> TT y}" (is "finite ?S")
-using assms by - finite_search
+using assms by finite_search
 
 lemma
   assumes "finite A" "finite B"
@@ -127,7 +129,7 @@ using assms by - finite_search
 lemma R:
   assumes "finite A" "A = B"
   shows "finite B"
-using assms by - finite_search
+using assms by finite_search
 
 lemma pairwise_finiteI:
   assumes "finite {b. \<exists>a. P a b}" (is "finite ?B")

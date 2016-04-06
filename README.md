@@ -23,6 +23,5 @@ can help.
 
 TODO
 ----
-* Locally apply simproc `finite_Collect` in the proof methods
 * Make preceding application of `apply -` obsolete
 * Extend scope to finiteness of sets of functions like in the last example
