@@ -1,7 +1,7 @@
 Intro
 -----
 This project provides two **Eisbach** proof methods for better automated reasoning about finiteness
-of sets in **Isabelle/HOL**. Code and examples are contained in the single theory file *Finiteness.thy*.
+of sets in **Isabelle/HOL**. Code and examples are contained in the single theory file `Finiteness.thy`.
 
 Usage
 ------
@@ -10,7 +10,7 @@ finite can be used to declare more intro methods.
 
 License
 -------
-This work is released under the BSD license. See LICENSE.md.
+This work is released under the BSD license. See `LICENSE.md`.
 
 More detailed description of the provided methods
 -------------------------------------------------
