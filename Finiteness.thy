@@ -19,6 +19,16 @@ named_theorems finite
 method add_finite_Collect_simproc methods m =
   match termI in H[simproc add: finite_Collect]:_ \<Rightarrow> m
 
+(* Trick from Dan Matichuk on isabelle-users.
+   Turns a structured method into a simple one.
+*)
+method_setup simple_method =
+ \<open>Method_Closure.method_text >> (fn m => fn ctxt => fn facts =>
+   let
+     val insert' = Method.Basic (K (Method.insert facts))
+     val m' = Method.Combinator (Method.no_combinator_info, Method.Then, [insert', m])
+   in Method_Closure.method_evaluate m' ctxt [] end)\<close>
+
 method finite_tup =
   match conclusion in
     "finite (_ \<times> _)" \<Rightarrow> \<open>rule finite_cartesian_product; finite_tup\<close> \<bar>
@@ -49,6 +59,7 @@ method finite_search =
           (solves \<open>(rule finite_subset; assumption?; fastforce)\<close>)?)\<close> \<bar>
     _ \<Rightarrow> \<open>fastforce simp: image_def\<close>
 
+method finite = simple_method finite_search
 
 section \<open>Tests\<close>
 text \<open>
@@ -60,38 +71,38 @@ text \<open>
 lemma
   assumes "finite A"
   shows "finite {x. x \<in> A \<and> P x}"
-using assms by - finite_search
+using assms by finite
 
 lemma collect_pair_finite[finite]:
   assumes "finite {x. P x}" "finite {x. Q x}"
   shows "finite {(x, y) . P x \<and> Q y \<and> R x y}"
-using assms by - finite_search
+using assms by finite
 
 lemma collect_pair_finite'[finite]:
   assumes "finite {(x, y). P x y}"
   shows "finite {(x, y) . P x y \<and> R x y}"
-using assms by - finite_search
+using assms by finite
 
 text \<open>This is what we actually need in this theory\<close>
 lemma collect_pair_finite''[finite]:
   assumes "finite {(x, y). P x \<and> Q y}"
   shows "finite {(x, y) . P x \<and> Q y \<and> R x y}"
-using assms by - finite_search
+using assms by finite
 
 lemma finite_imageI':
   assumes "finite {(x, y). P x y}"
   shows "finite {f x y | x y. P x y}"
-using assms by - finite_search
+using assms by finite
 
 lemma
   assumes "finite (A \<times> B)"
   shows "finite {(x, y) | x y. x \<in> A \<and> y \<in> B \<and> R x y}"
-using assms by - finite_search
+using assms by finite
 
 lemma finite_imageI'':
   assumes "finite (A \<times> B)"
   shows "finite {f x y | x y. x \<in> A \<and> y \<in> B \<and> R x y}"
-using assms by - finite_search
+using assms by finite
 
 lemma
   assumes "finite (A \<times> B)"
@@ -99,7 +110,7 @@ lemma
 proof -
   have "?S = (\<lambda> (x, y). f x y) ` {(x, y). x \<in> A \<and> y \<in> B \<and> R x y \<and> Q x y \<and> T x \<and> TT y}"
   by auto
-  also have "finite \<dots>" using assms by - finite_search
+  also have "finite \<dots>" using assms by finite
   ultimately show ?thesis by simp
 qed
 
@@ -113,36 +124,36 @@ lemma
   notes finite_imageI''[finite]
   assumes "finite (A \<times> B)"
   shows "finite {f x y | x y. x \<in> A \<and> y \<in> B \<and> R x y \<and> Q x y \<and> T x \<and> TT y}" (is "finite ?S")
-using assms by finite_search
+using assms by finite
 
 lemma
   assumes "finite A" "finite B"
   shows "finite {(x, y) | x y. x \<in> A \<and> y \<in> B \<and> R y \<and> S x}"
-using assms by - finite_search
+using assms by finite
 
 lemma
   fixes P Q R :: "'a \<Rightarrow> bool"
   assumes "finite {x. P x \<and> R x}"
   shows "finite {x. P x \<and> Q x \<and> R x}"
-using assms by - finite_search
+using assms by finite
 
 lemma R:
   assumes "finite A" "A = B"
   shows "finite B"
-using assms by finite_search
+using assms by finite
 
 lemma pairwise_finiteI:
   assumes "finite {b. \<exists>a. P a b}" (is "finite ?B")
   assumes "finite {a. \<exists>b. P a b}"
   shows "finite {(a,b). P a b}" (is "finite ?C")
-using assms by - finite_search
+using assms by finite
 
 lemma pairwise_finiteI3:
   assumes "finite {b. \<exists>a c. P a b c}"
   assumes "finite {a. \<exists>b c. P a b c}"
   assumes "finite {c. \<exists>a b. P a b c}"
   shows "finite {(a,b,c). P a b c}" (is "finite ?C")
-using assms by - finite_search
+using assms by finite
 
 lemma pairwise_finiteI4:
   assumes "finite {b. \<exists>a c d. P a b c d}"
@@ -150,17 +161,17 @@ lemma pairwise_finiteI4:
   assumes "finite {c. \<exists>a b d. P a b c d}"
   assumes "finite {d. \<exists>a b c. P a b c d}"
   shows "finite {(a,b,c,d). P a b c d}" (is "finite ?C")
-using assms by - finite_search
+using assms by finite
 
 lemma finite_ex_and1:
   assumes "finite {b. \<exists>a. P a b}" (is "finite ?A")
   shows "finite {b. \<exists>a. P a b \<and> Q a b}" (is "finite ?B")
-using assms by - finite_search
+using assms by finite
 
 lemma finite_ex_and2:
   assumes "finite {b. \<exists>a. Q a b}" (is "finite ?A")
   shows "finite {b. \<exists>a. P a b \<and> Q a b}" (is "finite ?B")
-using assms by - finite_search
+using assms by finite
 
 text \<open>
   This is the only lemma where our methods cannot help us so far due to the fairly
