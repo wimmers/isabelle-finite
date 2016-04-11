@@ -48,9 +48,11 @@ method finite_search =
       \<open>print_term S, (solves \<open>rule finite_subset; auto\<close>
         | rule finite_subset[where A = S and B = "fst ` S \<times> snd ` S"]; finite_tup?)\<close> \<bar>
     "finite (Collect f)" for f \<Rightarrow>
-      \<open>print_term f,
-        (print_term v, rule finite; (assumption | finite_search)
-       | add_finite_Collect_simproc simp; rule finite_imageI; finite_search
+      \<open>print_term f, (add_finite_Collect_simproc simp)?;
+        (solves \<open>auto intro: finite\<close>
+       | print_term v, simp?, rule finite; (assumption | finite_search)
+       | rule finite_imageI; finite_search
+       | rule finite_vimageI; finite_search
        | print_term x, rule finite_subset; assumption?; fastforce)\<close> \<bar>
     "finite X" for X \<Rightarrow>
       \<open>print_term X,
@@ -62,16 +64,43 @@ method finite_search =
 method finite = simple_method finite_search
 
 section \<open>Tests\<close>
-text \<open>
-  Note that in the examples below, we actually need simproc \<open>finite_Collect\<close> where we activate it.
-  I haven't investigated a way which allows to activate the method locally in the Eisbach method
-  so far.
-\<close>
+
+subsection \<open>Counterexamples\<close>
+
+lemma inj_finite_single:
+  assumes "inj f"
+  shows "finite {y. x = f y}"
+using assms Collect_mem_eq Collect_mono_iff infinite_iff_countable_subset inj_eq not_finite_existsD
+      rangeI
+by fastforce
+
+lemmas inj_finite_single[finite]
+
+text \<open>It's hard to guess the right set\<close>
+lemma inj_finite_single':
+  assumes "inj f"
+  shows "finite {z. f z = x}"
+apply (rule finite_subset[of _ "{z. x = f z}"])
+apply blast
+using assms by finite
+
+(* Due to Lars Hupel *)
+definition select :: "('a \<rightharpoonup> 'b) \<Rightarrow> 'a set \<Rightarrow> 'b set" where
+  "select f S = {z | z. \<exists>x \<in> S. f x = Some z}"
+
+lemma select_finite:
+  assumes "finite S"
+  shows "finite (select f S)"
+using assms unfolding select_def by finite
+
+lemmas inj_finite_single'[finite]
+
+subsection \<open>Working Examples\<close>
 
 lemma
   assumes "finite A"
   shows "finite {x. x \<in> A \<and> P x}"
-using assms by finite
+using assms by finite_search
 
 lemma collect_pair_finite[finite]:
   assumes "finite {x. P x}" "finite {x. Q x}"
@@ -104,6 +133,18 @@ lemma finite_imageI'':
   shows "finite {f x y | x y. x \<in> A \<and> y \<in> B \<and> R x y}"
 using assms by finite
 
+text \<open>\<open>finite_Collect\<close> can also rewrite to \<open>vimage\<close>\<close>
+lemma
+  assumes "inj f" "finite S"
+  shows "finite {y. \<exists> x \<in> S. x = f y}"
+using assms by finite
+
+lemma
+  assumes "inj f" "finite S"
+  shows "finite {y. \<exists> x \<in> S. f y = x}"
+using assms by finite
+
+text \<open>Another counter-example\<close>
 lemma
   assumes "finite (A \<times> B)"
   shows "finite {f x y | x y. x \<in> A \<and> y \<in> B \<and> R x y \<and> Q x y \<and> T x \<and> TT y}" (is "finite ?S")

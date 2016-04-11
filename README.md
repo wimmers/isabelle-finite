@@ -6,7 +6,7 @@ of sets in **Isabelle/HOL**. Code and examples are contained in the single theor
 Usage
 ------
 On Isabelle 2016, simply import the file to use any of the methods. The attribute
-finite can be used to declare more intro methods.
+`finite` can be used to declare more intro methods.
 
 License
 -------
