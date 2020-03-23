@@ -2,6 +2,13 @@ Intro
 -----
 This project provides two **Eisbach** proof methods for better automated reasoning about finiteness
 of sets in **Isabelle/HOL**. Code and examples are contained in the single theory file `Finiteness.thy`.
+Moreover, generalizations of the theorem `setcompr_eq_image` are provided.
+
+The file `Tutorial.thy` contains a number of general hints on reasoning about finiteness in Isabelle/HOL.
+
+The file `Reordering_Quantifiers.thy` attempts to provide a number of fine-grained reasoning
+tactics that can help to solve complex finiteness goals with manual support.
+Moreover, generalizations of the theorem `finite_Collect_bounded_ex` are provided.
 
 Usage
 ------
