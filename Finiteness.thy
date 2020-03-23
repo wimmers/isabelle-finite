@@ -93,36 +93,6 @@ method finite_search =
 method finite = simple_method finite_search
 
 subsection \<open>Tests\<close>
-subsubsection \<open>Counterexamples\<close>
-
-lemma inj_finite_single:
-  assumes "inj f"
-  shows "finite {y. x = f y}"
-  using assms Collect_mem_eq Collect_mono_iff infinite_iff_countable_subset inj_eq not_finite_existsD
-    rangeI
-  by fastforce
-
-lemmas inj_finite_single[finite]
-
-text \<open>It's hard to guess the right set\<close>
-lemma inj_finite_single':
-  assumes "inj f"
-  shows "finite {z. f z = x}"
-  apply (rule finite_subset[of _ "{z. x = f z}"])
-   apply blast
-  using assms by finite
-
-(* Due to Lars Hupel *)
-definition select :: "('a \<rightharpoonup> 'b) \<Rightarrow> 'a set \<Rightarrow> 'b set" where
-  "select f S = {z | z. \<exists>x \<in> S. f x = Some z}"
-
-lemma select_finite:
-  assumes "finite S"
-  shows "finite (select f S)"
-  using assms unfolding select_def by finite
-
-lemmas inj_finite_single'[finite]
-
 subsubsection \<open>Working Examples\<close>
 
 lemma
@@ -224,10 +194,37 @@ lemma finite_ex_and2:
   shows "finite {b. \<exists>a. P a b \<and> Q a b}" (is "finite ?B")
   using assms by - finite
 
-text \<open>
-  This is the only lemma where our methods cannot help us so far due to the fairly
-  complex argument that is used in the interactive proof.
-\<close>
+
+subsubsection \<open>Counterexamples\<close>
+
+lemma inj_finite_single:
+  assumes "inj f"
+  shows "finite {y. x = f y}"
+  using assms Collect_mem_eq Collect_mono_iff infinite_iff_countable_subset inj_eq not_finite_existsD
+    rangeI
+  by fastforce
+
+lemmas inj_finite_single[finite]
+
+text \<open>It's hard to guess the right set\<close>
+lemma inj_finite_single':
+  assumes "inj f"
+  shows "finite {z. f z = x}"
+  apply (rule finite_subset[of _ "{z. x = f z}"])
+   apply blast
+  using assms by finite
+
+(* Due to Lars Hupel *)
+definition select :: "('a \<rightharpoonup> 'b) \<Rightarrow> 'a set \<Rightarrow> 'b set" where
+  "select f S = {z | z. \<exists>x \<in> S. f x = Some z}"
+
+lemma select_finite:
+  assumes "finite S"
+  shows "finite (select f S)"
+  using assms unfolding select_def by finite
+
+lemmas inj_finite_single'[finite]
+
 lemma finite_set_of_finite_funs2:
   fixes A :: "'a set" 
     and B :: "'b set"
