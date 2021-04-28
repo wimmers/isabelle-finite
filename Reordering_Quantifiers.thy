@@ -1,5 +1,5 @@
 theory Reordering_Quantifiers
-  imports Main
+  imports Main "HOL-Eisbach.Eisbach"
 begin
 
 (* Printing util *)
@@ -1063,5 +1063,18 @@ lemma finite_Collect_bounded_ex_10 [simp]:
   using assms finite_Collect_bounded_ex
     [OF assms, where Q = "\<lambda> x. \<lambda> (a, b, c, d, e, f, g, h, i, j). Q x a b c d e f g h i j"]
   by clarsimp (* force, simp *)
+
+
+ML \<open>fun mini_ex ctxt = SIMPLE_METHOD (mini_ex_tac ctxt 1)\<close>
+ML \<open>fun defer_ex ctxt = SIMPLE_METHOD (defer_ex_tac ctxt 1)\<close>
+
+method_setup mini_existential =
+  \<open>Scan.succeed mini_ex\<close> \<open>Miniscope existential quantifiers\<close>
+method_setup defer_existential =
+  \<open>Scan.succeed defer_ex\<close> \<open>Rotate first conjunct under existential quantifiers to last position\<close>
+
+method mini_ex = ((simp only: ex_simps[symmetric])?, mini_existential, (simp)?)
+method defer_ex = ((simp only: ex_simps[symmetric])?, defer_existential, (simp)?)
+method defer_ex' = (defer_existential, (simp)?)
 
 end
