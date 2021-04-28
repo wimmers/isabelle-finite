@@ -246,4 +246,15 @@ proof -
   ultimately show ?thesis by simp
 qed
 
+subsubsection \<open>Counterexamples to be investigated\<close>
+
+lemma finite_aux1[finite]:
+  "finite {(x, y). x \<le> y \<and> y < (n :: nat)}"
+  by (rule finite_subset[where B = "{(x, y). x < n \<and> y < (n :: nat)}"]) auto
+
+lemma "finite {sum ((!) a) {i..j} |i j. i \<le> j \<and> j < n}"
+  by finite
+  (* or: by (subst setcompr_eq_image2, rule finite_imageI, rule finite_aux1) *)
+  (* but this fails?? by (subst setcompr_eq_image2, rule finite_imageI, finite) *)
+
 end
