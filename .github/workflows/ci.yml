@@ -11,5 +11,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+      - name: List theories
+        run: ls -l .
       - name: Run theories
         run: Isabelle/bin/isabelle build -d . Finite
