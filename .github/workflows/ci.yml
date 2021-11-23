@@ -14,4 +14,4 @@ jobs:
       - name: List theories
         run: ls -l .
       - name: Run theories
-        run: Isabelle/bin/isabelle build -d . Finite
+        run: docker run isabelle build -d . Finite
