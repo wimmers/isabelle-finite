@@ -12,4 +12,4 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
       - name: Run theories
-        run: isabelle build -d . Finite
+        run: Isabelle/bin/isabelle build -d . Finite
