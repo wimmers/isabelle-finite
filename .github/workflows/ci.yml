@@ -12,4 +12,5 @@ jobs:
         run: ls -l .
       - name: Run theories  
         uses: docker://makarius/isabelle
-        args: build -d /github/workspace Finite
+        with:
+          args: build -d /github/workspace Finite
