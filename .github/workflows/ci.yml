@@ -11,5 +11,5 @@ jobs:
       - name: List theories
         run: ls -l .
       - name: Run theories  
-          uses: docker://makarius/isabelle
-          args: build -d /github/workspace Finite
+        uses: docker://makarius/isabelle
+        args: build -d /github/workspace Finite
