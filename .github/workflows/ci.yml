@@ -5,7 +5,8 @@ on: [push]
 jobs:
   checkout:
     runs-on: ubuntu-latest
-    container: makarius/isabelle
+    container:
+      image: makarius/isabelle
       options: --user root
     steps:
       - name: Check out repository
