@@ -1,16 +1,19 @@
 name: Build
-
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - '**.md'
 
 jobs:
-  checkout:
-    runs-on: ubuntu-latest
+  build:
+    name: build
+    runs-on: ubuntu-18.04
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: List theories
-        run: ls -l .
-      - name: Run theories  
-        uses: docker://makarius/isabelle
-        with:
-          args: build -d /github/workspace Finite
+
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Run theories
+        run: docker run makarius/isabelle build -d /github/workspace Finite
